@@ -7,6 +7,7 @@ const menuBackdrop = document.querySelector(".menu-backdrop");
 const faqItems = document.querySelectorAll(".faq-item");
 const legalItems = document.querySelectorAll(".legal-item");
 const serviceCards = document.querySelectorAll(".service-card");
+const heroRotatorImages = document.querySelectorAll(".hero-mobbin-icon .hero-rotator-image");
 const reviewsGrid = document.querySelector(".reviews-grid");
 const reviewCards = document.querySelectorAll(".review-card");
 const reviewDots = document.querySelectorAll(".reviews-dot");
@@ -163,6 +164,72 @@ serviceCards.forEach((card) => {
     toggleCard();
   });
 });
+
+if (heroRotatorImages.length === 3) {
+  const stackClasses = ["stack-front", "stack-mid", "stack-back"];
+  let currentOrder = [0, 1, 2];
+  let isHeroStackAnimating = false;
+
+  const applyHeroStack = () => {
+    heroRotatorImages.forEach((image) => {
+      image.classList.remove(...stackClasses, "stack-exiting");
+      image.style.visibility = "";
+    });
+
+    currentOrder.forEach((imageIndex, stackIndex) => {
+      heroRotatorImages[imageIndex]?.classList.add(stackClasses[stackIndex]);
+    });
+  };
+
+  const rotateHeroStack = () => {
+    if (isHeroStackAnimating) {
+      return;
+    }
+
+    isHeroStackAnimating = true;
+
+    const exitingIndex = currentOrder[0];
+    const nextFrontIndex = currentOrder[1];
+    const nextMidIndex = currentOrder[2];
+
+    const exitingImage = heroRotatorImages[exitingIndex];
+    const nextFrontImage = heroRotatorImages[nextFrontIndex];
+    const nextMidImage = heroRotatorImages[nextMidIndex];
+
+    exitingImage?.classList.remove("stack-front");
+    exitingImage?.classList.add("stack-exiting");
+
+    window.setTimeout(() => {
+      if (exitingImage) {
+        exitingImage.style.visibility = "hidden";
+      }
+
+      nextFrontImage?.classList.remove("stack-mid");
+      nextFrontImage?.classList.add("stack-front");
+
+      nextMidImage?.classList.remove("stack-back");
+      nextMidImage?.classList.add("stack-mid");
+
+      exitingImage?.classList.add("stack-no-transition");
+      exitingImage?.classList.remove("stack-exiting");
+      exitingImage?.classList.add("stack-back");
+
+      currentOrder = [nextFrontIndex, nextMidIndex, exitingIndex];
+
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          if (exitingImage) {
+            exitingImage.style.visibility = "";
+            exitingImage.classList.remove("stack-no-transition");
+          }
+          isHeroStackAnimating = false;
+        });
+      });
+    }, 180);
+  };
+
+  window.setInterval(rotateHeroStack, 2600);
+}
 
 if (reviewsGrid) {
   let isDragging = false;
